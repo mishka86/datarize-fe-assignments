@@ -29,7 +29,8 @@ router.get('/', async (ctx) => {
       return {
         id: Number(id),
         name: customer ? customer.name : 'Unknown',
-        ...customerStats[Number(id)],
+        totalPurchases: customerStats[Number(id)].count,
+        totalAmount: customerStats[Number(id)].totalAmount,
       }
     })
 
@@ -50,26 +51,28 @@ router.get('/', async (ctx) => {
 
       if (!sortBy) return (ctx.body = filteredCustomers.sort((a, b) => a.id - b.id))
 
-      if (sortBy === 'asc' || sortBy === 'desc') {
+      if (sortBy === 'id') {
+        filteredCustomers.sort((a, b) => a.id - b.id)
+      } else if (sortBy === 'asc' || sortBy === 'desc') {
         filteredCustomers.sort((a, b) => {
           const comparison = b.totalAmount - a.totalAmount
           return sortBy === 'asc' ? -comparison : comparison
         })
-
-        ctx.body = filteredCustomers
-        return
       }
-    }
-    if (!sortBy) return (ctx.body = topCustomers.sort((a, b) => a.id - b.id))
 
-    if (sortBy === 'asc' || sortBy === 'desc') {
+      ctx.body = filteredCustomers
+      return
+    }
+    if (!sortBy || sortBy === 'id') {
+      topCustomers.sort((a, b) => a.id - b.id)
+    } else if (sortBy === 'asc' || sortBy === 'desc') {
       topCustomers.sort((a, b) => {
         const comparison = b.totalAmount - a.totalAmount
         return sortBy === 'asc' ? -comparison : comparison
       })
     } else {
       ctx.status = 400
-      ctx.body = { error: 'Invalid sortBy parameter. Use "asc" or "desc".' }
+      ctx.body = { error: 'Invalid sortBy parameter. Use "id", "asc" or "desc".' }
       return
     }
 
@@ -108,11 +111,13 @@ router.get('/:id/purchases', async (ctx) => {
     const purchaseDetails = customerPurchases.map((purchase) => {
       const product = products.find((p) => p.id === purchase.productId)
       return {
-        date: purchase.date,
-        quantity: purchase.quantity,
-        product: product ? product.name : 'Unknown',
+        id: `${purchase.customerId}-${purchase.productId}-${purchase.date}`,
+        customerId: purchase.customerId.toString(),
+        productId: purchase.productId.toString(),
+        productName: product ? product.name : 'Unknown',
         price: product ? product.price * purchase.quantity : 0,
-        imgSrc: product ? product.imgSrc : '',
+        purchaseDate: purchase.date,
+        thumbnail: product ? product.imgSrc : '',
       }
     })
 

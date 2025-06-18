@@ -42,18 +42,19 @@ router.get('/api/purchase-frequency', async (ctx) => {
     const products = await getProducts()
 
     const priceRanges = [
-      { min: 0, max: 20000 },
-      { min: 20001, max: 30000 },
-      { min: 30001, max: 40000 },
-      { min: 40001, max: 50000 },
-      { min: 50001, max: 60000 },
-      { min: 60001, max: 70000 },
-      { min: 70001, max: 80000 },
-      { min: 80001, max: 90000 },
-      { min: 90001, max: 100000 },
+      { min: 0, max: 20000, label: '2만원 이하' },
+      { min: 20001, max: 30000, label: '2만원 초과 ~ 3만원' },
+      { min: 30001, max: 40000, label: '3만원 초과 ~ 4만원' },
+      { min: 40001, max: 50000, label: '4만원 초과 ~ 5만원' },
+      { min: 50001, max: 60000, label: '5만원 초과 ~ 6만원' },
+      { min: 60001, max: 70000, label: '6만원 초과 ~ 7만원' },
+      { min: 70001, max: 80000, label: '7만원 초과 ~ 8만원' },
+      { min: 80001, max: 90000, label: '8만원 초과 ~ 9만원' },
+      { min: 90001, max: 99999, label: '9만원 초과 ~ 10만원 미만' },
+      { min: 100000, max: Infinity, label: '10만원 이상' },
     ]
 
-    const frequency = priceRanges.map((range) => ({ range: `${range.min} - ${range.max}`, count: 0 }))
+    const frequency = priceRanges.map((range) => ({ range: range.label, count: 0 }))
 
     purchases
       .filter((purchase) => {
